@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Architecture of Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300;1,9..144,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════
+   PALETTE: Midnight · Blush · Soft Sage
+   Character: Deep, intimate, botanical
+═══════════════════════════════════════ */
+:root {
+  /* Backgrounds — layered midnight purple */
+  --bg:      #16121e;
+  --surf:    #1e1929;
+  --surf2:   #272135;
+  --surf3:   #302a3f;
+
+  /* Borders */
+  --ln:      #312848;
+  --ln2:     #4a3d6a;
+
+  /* Text — blush hierarchy, all clearly readable */
+  --t1:  #f2dfd8;   /* Blush white — headings, primary text */
+  --t2:  #d0b8bc;   /* muted rose — body text */
+  --t3:  #b09098;   /* secondary labels — VISIBLE */
+  --t4:  #5a4460;   /* faint — decorative only */
+
+  /* Brand accents */
+  --sage:  #abc8a2;
+  --blush: #f2dfd8;
+  --rose:  #d4849c;
+
+  /* Stage colors — all legible on midnight */
+  --s0: #7ddec8;
+  --s1: #7ab8f5;
+  --s2: #c4a0f8;
+  --s3: #f0d080;
+  --s4: #f08888;
+  --s5: #abc8a2;
+  --s6: #f0b07a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--t2);
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+.pg { max-width: 1060px; margin: 0 auto; padding: 0 2.5rem; }
+
+/* ════════════════════════════════
+   HERO
+════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 7rem 2.5rem 5rem;
+  position: relative;
+  border-bottom: 1px solid var(--ln);
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(171,200,162,.08) 0%, transparent 70%);
+  top: -100px; right: -100px;
+  pointer-events: none;
+}
+
+.hero-glow2 {
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(242,223,216,.06) 0%, transparent 70%);
+  bottom: 0; left: 5%;
+  pointer-events: none;
+}
+
+.hero-inner { position: relative; z-index: 1; max-width: 860px; }
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  font-family: 'Space Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeup .9s .1s ease both;
+}
+
+.hero-tag::before {
+  content: '';
+  display: block;
+  width: 28px; height: 1px;
+  background: var(--sage);
+}
+
+.hero-h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(3.5rem, 9vw, 7.5rem);
+  line-height: .95;
+  letter-spacing: -.03em;
+  color: var(--t1);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeup .9s .25s ease both;
+}
+
+.hero-h1 .accent { color: var(--sage); }
+.hero-h1 .accent2 { color: var(--blush); font-style: italic; font-family: 'Fraunces', serif; font-weight: 300; }
+
+.hero-desc {
+  font-family: 'Fraunces', serif;
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--t3);
+  max-width: 540px;
+  margin-bottom: 3rem;
+  line-height: 1.6;
+  opacity: 0;
+  animation: fadeup .9s .4s ease both;
+}
+
+.hero-quote {
+  border-left: 2px solid var(--sage);
+  padding: 1.4rem 2rem;
+  max-width: 600px;
+  opacity: 0;
+  animation: fadeup .9s .55s ease both;
+}
+
+.hero-quote p {
+  font-size: 1.1rem;
+  color: var(--t2);
+  line-height: 1.65;
+  margin-bottom: .6rem;
+}
+
+.hero-quote cite {
+  font-family: 'Space Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .15em;
+  color: var(--t4);
+  font-style: normal;
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  opacity: 0;
+  animation: fadeup .9s .9s ease both;
+}
+
+.scroll-cue span {
+  font-family: 'Space Mono', monospace;
+  font-size: .55rem;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--t4);
+}
+
+.scroll-tick {
+  width: 40px; height: 1px;
+  background: linear-gradient(to right, var(--sage), transparent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ════════════════════════════════
+   PHILOSOPHY
+════════════════════════════════ */
+.sec-phil {
+  padding: 7rem 0;
+  border-bottom: 1px solid var(--ln);
+}
+
+.overline {
+  font-family: 'Space Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+
+.overline::before {
+  content: '';
+  display: block;
+  width: 20px; height: 1px;
+  background: var(--sage);
+}
+
+.sec-h {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--t1);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  margin-bottom: 3rem;
+}
+
+.phil-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.phil-text p {
+  font-size: 1.05rem;
+  color: var(--t2);
+  margin-bottom: 1.4rem;
+  line-height: 1.85;
+}
+
+.phil-text strong { color: var(--t1); font-weight: 600; }
+
+.cog-box {
+  background: var(--surf);
+  border: 1px solid var(--ln);
+  border-top: 2px solid var(--sage);
+  padding: 2rem 2.2rem;
+  font-family: 'Space Mono', monospace;
+  font-size: .72rem;
+  line-height: 2;
+  color: var(--t3);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.cg1 { color: var(--sage); font-weight: 700; }
+.cg2 { color: var(--blush); }
+.cg3 { color: var(--s2); }
+.cg4 { color: var(--s4); }
+
+/* ════════════════════════════════
+   STAGES SECTION
+════════════════════════════════ */
+.sec-stages { padding: 4rem 0 8rem; }
+
+.stages-top {
+  padding: 4rem 0 3rem;
+  border-bottom: 1px solid var(--ln);
+  margin-bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.stages-top .sec-h { margin-bottom: 0; }
+
+.stages-meta {
+  font-family: 'Space Mono', monospace;
+  font-size: .6rem;
+  color: var(--t4);
+  letter-spacing: .15em;
+  text-align: right;
+  line-height: 1.8;
+}
+
+/* ════════════════════════════════
+   SINGLE STAGE — Open editorial
+════════════════════════════════ */
+.stage {
+  padding: 5rem 0;
+  border-bottom: 1px solid var(--ln);
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+
+.stage.vis { opacity: 1; transform: none; }
+.stage:last-child { border-bottom: none; }
+
+/* Stage header — LARGE and theatrical */
+.stage-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 2.5rem;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--ln);
+}
+
+.stage-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 5rem;
+  line-height: 1;
+  letter-spacing: -.04em;
+  opacity: .12;
+  color: var(--t1);
+  flex-shrink: 0;
+  min-width: 100px;
+  text-align: center;
+}
+
+.stage-meta { }
+
+.stage-cat {
+  font-family: 'Space Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  margin-bottom: .5rem;
+}
+
+.stage-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  color: var(--t1);
+  line-height: 1.15;
+  margin-bottom: .5rem;
+  letter-spacing: -.02em;
+}
+
+.stage-span {
+  font-family: 'Space Mono', monospace;
+  font-size: .6rem;
+  color: var(--t4);
+  letter-spacing: .1em;
+}
+
+/* Stage accent colors */
+.stage[data-n="0"] .stage-num  { color: var(--s0); opacity: .18; }
+.stage[data-n="0"] .stage-cat  { color: var(--s0); }
+.stage[data-n="1"] .stage-num  { color: var(--s1); opacity: .18; }
+.stage[data-n="1"] .stage-cat  { color: var(--s1); }
+.stage[data-n="2"] .stage-num  { color: var(--s2); opacity: .18; }
+.stage[data-n="2"] .stage-cat  { color: var(--s2); }
+.stage[data-n="3"] .stage-num  { color: var(--s3); opacity: .18; }
+.stage[data-n="3"] .stage-cat  { color: var(--s3); }
+.stage[data-n="4"] .stage-num  { color: var(--s4); opacity: .18; }
+.stage[data-n="4"] .stage-cat  { color: var(--s4); }
+.stage[data-n="5"] .stage-num  { color: var(--s5); opacity: .18; }
+.stage[data-n="5"] .stage-cat  { color: var(--s5); }
+.stage[data-n="6"] .stage-num  { color: var(--s6); opacity: .18; }
+.stage[data-n="6"] .stage-cat  { color: var(--s6); }
+
+.stage-intro {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--t1);
+  line-height: 1.7;
+  max-width: 680px;
+  margin-bottom: 3rem;
+  opacity: .85;
+}
+
+/* ════════════════════════════════
+   TOPIC CARDS — Large, open, readable
+════════════════════════════════ */
+.blk-title {
+  font-family: 'Space Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--t4);
+  margin-bottom: 1.2rem;
+}
+
+.topics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: .8rem;
+  margin-bottom: 3rem;
+}
+
+.tc {
+  background: var(--surf);
+  border: 1px solid var(--ln);
+  padding: 1.4rem 1.6rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  transition: border-color .2s, background .2s, transform .2s;
+  cursor: default;
+}
+
+.tc:hover {
+  border-color: var(--ln2);
+  background: var(--surf2);
+  transform: translateY(-2px);
+}
+
+/* Branch pill — bigger, bolder */
+.br {
+  font-family: 'Space Mono', monospace;
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .25rem .7rem;
+  border: 1px solid;
+  display: inline-block;
+  width: fit-content;
+  border-radius: 2px;
+}
+
+/* Pill colors — distinct, all readable */
+.br-mint   { color: var(--s0); border-color: rgba(125,222,200,.3);  background: rgba(125,222,200,.07); }
+.br-blue   { color: var(--s1); border-color: rgba(122,184,245,.3);  background: rgba(122,184,245,.07); }
+.br-violet { color: var(--s2); border-color: rgba(196,160,248,.3);  background: rgba(196,160,248,.07); }
+.br-gold   { color: var(--s3); border-color: rgba(240,208,128,.3);  background: rgba(240,208,128,.07); }
+.br-coral  { color: var(--s4); border-color: rgba(240,136,136,.3);  background: rgba(240,136,136,.07); }
+.br-lime   { color: var(--s5); border-color: rgba(171,200,162,.3);  background: rgba(171,200,162,.07); }
+.br-amber  { color: var(--s6); border-color: rgba(240,176,122,.3);  background: rgba(240,176,122,.07); }
+.br-peony  { color: var(--blush); border-color: rgba(242,223,216,.3); background: rgba(242,223,216,.07); }
+
+/* Topic name — large, clear */
+.tc-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--t1);
+  line-height: 1.3;
+}
+
+/* Topic detail — still readable! */
+.tc-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: .65rem;
+  color: var(--t3);
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+/* ════════════════════════════════
+   PAPERS — editorial citations
+════════════════════════════════ */
+.papers-head {
+  font-family: 'Space Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--t4);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.papers-head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ln);
+}
+
+.papers {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  margin-bottom: 2.5rem;
+}
+
+.paper {
+  background: var(--surf);
+  border: 1px solid var(--ln);
+  padding: 1rem 1.4rem;
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 0 1.2rem;
+  align-items: center;
+  transition: border-color .2s;
+}
+
+.paper:hover { border-color: var(--ln2); }
+
+.p-yr {
+  font-family: 'Space Mono', monospace;
+  font-size: .62rem;
+  color: var(--t4);
+  text-align: center;
+}
+
+.p-title {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--t1);
+  margin-bottom: .25rem;
+  line-height: 1.35;
+}
+
+.p-auth {
+  font-family: 'Space Mono', monospace;
+  font-size: .58rem;
+  color: var(--t3);
+  line-height: 1.4;
+}
+
+.pbadge {
+  font-family: 'Space Mono', monospace;
+  font-size: .55rem;
+  padding: .2rem .65rem;
+  border: 1px solid;
+  border-radius: 2px;
+  white-space: nowrap;
+  letter-spacing: .05em;
+  align-self: start;
+}
+
+.b-must  { color: var(--s3);    border-color: rgba(240,208,128,.4);  background: rgba(240,208,128,.07); }
+.b-found { color: var(--sage);  border-color: rgba(171,200,162,.4);  background: rgba(171,200,162,.07); }
+.b-key   { color: var(--s2);    border-color: rgba(196,160,248,.4);  background: rgba(196,160,248,.07); }
+.b-rev   { color: var(--blush); border-color: rgba(242,223,216,.4);  background: rgba(242,223,216,.07); }
+
+/* ════════════════════════════════
+   INSIGHT — generous, open
+════════════════════════════════ */
+.insight {
+  background: var(--surf);
+  border: 1px solid var(--ln);
+  border-left: 3px solid var(--sage);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.insight p { font-size: 1rem; color: var(--t2); line-height: 1.75; }
+.insight strong { color: var(--t1); }
+.insight em { font-style: italic; color: var(--sage); }
+
+.stage[data-n="0"] .insight { border-left-color: var(--s0); }
+.stage[data-n="1"] .insight { border-left-color: var(--s1); }
+.stage[data-n="2"] .insight { border-left-color: var(--s2); }
+.stage[data-n="3"] .insight { border-left-color: var(--s3); }
+.stage[data-n="4"] .insight { border-left-color: var(--s4); }
+.stage[data-n="5"] .insight { border-left-color: var(--s5); }
+.stage[data-n="6"] .insight { border-left-color: var(--s6); }
+
+/* ════════════════════════════════
+   RESOURCES
+════════════════════════════════ */
+.resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.res {
+  font-family: 'Space Mono', monospace;
+  font-size: .6rem;
+  padding: .35rem .9rem;
+  background: var(--surf);
+  border: 1px solid var(--ln);
+  color: var(--t3);
+  letter-spacing: .04em;
+  transition: color .2s, border-color .2s;
+}
+
+.res:hover { color: var(--t2); border-color: var(--ln2); }
+
+/* ════════════════════════════════
+   PLATFORM CARDS — S6
+════════════════════════════════ */
+.plats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: .8rem;
+  margin-bottom: 2.5rem;
+}
+
+.plat {
+  background: var(--surf);
+  border: 1px solid var(--ln);
+  padding: 1.4rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  transition: border-color .2s, transform .2s;
+}
+
+.plat:hover { border-color: var(--s5); transform: translateY(-2px); }
+
+.plat-type {
+  font-family: 'Space Mono', monospace;
+  font-size: .55rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--s5);
+}
+
+.plat-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--t1);
+  line-height: 1.2;
+}
+
+.plat-desc {
+  font-size: .9rem;
+  color: var(--t2);
+  line-height: 1.65;
+}
+
+.plat-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-top: .3rem;
+}
+
+.ptag {
+  font-family: 'Space Mono', monospace;
+  font-size: .52rem;
+  padding: .15rem .55rem;
+  background: rgba(245,165,66,.07);
+  border: 1px solid rgba(245,165,66,.25);
+  color: var(--s6);
+  border-radius: 2px;
+}
+
+/* ════════════════════════════════
+   TIER CARDS
+════════════════════════════════ */
+.tiers {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  margin-bottom: 2.5rem;
+}
+
+.tier {
+  background: var(--surf);
+  border: 1px solid var(--ln);
+  padding: 1.2rem 1.6rem;
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.tlv {
+  font-family: 'Space Mono', monospace;
+  font-size: .6rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  line-height: 1.7;
+  font-weight: 700;
+}
+
+.lbeg { color: var(--s0); }
+.lmid { color: var(--s3); }
+.ladv { color: var(--s4); }
+.lfr  { color: var(--s5); }
+
+.tbody {
+  font-size: .95rem;
+  color: var(--t2);
+  line-height: 1.75;
+}
+
+.tbody strong { color: var(--t1); }
+
+/* ════════════════════════════════
+   GRAND VIEW
+════════════════════════════════ */
+.sec-grand {
+  padding: 7rem 0;
+  border-top: 1px solid var(--ln);
+  border-bottom: 1px solid var(--ln);
+  position: relative;
+  overflow: hidden;
+}
+
+.grand-glow {
+  position: absolute;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(171,200,162,.05) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.grand-box {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--ln);
+  border-top: 2px solid var(--sage);
+  background: var(--surf);
+  padding: 3.5rem 4rem;
+}
+
+.grand-box h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: var(--blush);
+  margin-bottom: 2rem;
+  letter-spacing: -.02em;
+}
+
+.grand-box p {
+  font-size: 1.05rem;
+  color: var(--t2);
+  margin-bottom: 1.2rem;
+  line-height: 1.85;
+  max-width: 700px;
+}
+
+.grand-box strong { color: var(--t1); }
+
+/* ════════════════════════════════
+   COMMANDMENTS
+════════════════════════════════ */
+.sec-cmd { padding: 7rem 0; }
+
+.cmds {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.cmd {
+  background: var(--surf);
+  border: 1px solid var(--ln);
+  padding: 1.8rem 2rem;
+  transition: border-color .2s, transform .2s;
+}
+
+.cmd:hover { border-color: var(--ln2); transform: translateY(-2px); }
+
+.cmd-n {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: .8rem;
+  color: var(--t4);
+  letter-spacing: -.04em;
+}
+
+.cmd-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--t1);
+  margin-bottom: .6rem;
+  line-height: 1.3;
+}
+
+.cmd-body {
+  font-size: .9rem;
+  color: var(--t3);
+  line-height: 1.7;
+}
+
+/* ════════════════════════════════
+   DIVIDER
+════════════════════════════════ */
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin: 3rem 0;
+}
+
+.rule::before, .rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ln);
+}
+
+.rule span {
+  font-family: 'Space Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .22em;
+  color: var(--t4);
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════
+   FOOTER
+════════════════════════════════ */
+footer {
+  text-align: center;
+  padding: 5rem 2rem;
+  border-top: 1px solid var(--ln);
+  position: relative;
+  overflow: hidden;
+}
+
+.ft-glow {
+  position: absolute;
+  width: 400px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(171,200,162,.06) 0%, transparent 70%);
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ft-sig {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 2rem;
+  color: var(--blush);
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.ft-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: .58rem;
+  color: var(--t4);
+  letter-spacing: .18em;
+  line-height: 2.2;
+  position: relative;
+}
+
+/* ════════════════════════════════
+   ANIMATIONS
+════════════════════════════════ */
+/* ════════════════════════════════
+   LEARNING LOOP BAR
+════════════════════════════════ */
+.loop-section {
+  padding: 3.5rem 0;
+  border-bottom: 1px solid var(--ln);
+  background: var(--surf);
+}
+
+.loop-label {
+  font-family: 'Space Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+
+.loop-label::before {
+  content: '';
+  display: block;
+  width: 20px; height: 1px;
+  background: var(--sage);
+}
+
+.loop-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 1.4rem;
+  overflow-x: auto;
+}
+
+.loop-step {
+  flex: 1;
+  min-width: 120px;
+  background: var(--bg);
+  border: 1px solid var(--ln);
+  border-right: none;
+  padding: 1.1rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  position: relative;
+}
+
+.loop-step:last-child { border-right: 1px solid var(--ln); }
+
+.loop-step::after {
+  content: '→';
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: .85rem;
+  color: var(--ln2);
+  z-index: 2;
+  background: var(--surf);
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.loop-step:last-child::after { display: none; }
+
+.loop-n {
+  font-family: 'Space Mono', monospace;
+  font-size: .52rem;
+  color: var(--t4);
+  letter-spacing: .15em;
+}
+
+.loop-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: .85rem;
+  color: var(--t1);
+}
+
+.loop-desc {
+  font-size: .8rem;
+  color: var(--t3);
+  line-height: 1.4;
+}
+
+.loop-step.ls0 { border-top: 2px solid var(--s0); }
+.loop-step.ls1 { border-top: 2px solid var(--s1); }
+.loop-step.ls2 { border-top: 2px solid var(--s2); }
+.loop-step.ls3 { border-top: 2px solid var(--s3); }
+.loop-step.ls4 { border-top: 2px solid var(--s5); }
+
+.loop-note {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: .95rem;
+  color: var(--t3);
+  line-height: 1.65;
+  max-width: 700px;
+}
+
+.loop-note strong { color: var(--t2); }
+
+/* ════════════════════════════════
+   PARALLEL TRACK BADGE
+════════════════════════════════ */
+.parallel-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--surf2);
+  border: 1px solid var(--ln2);
+  border-left: 3px solid var(--sage);
+  padding: 1rem 1.4rem;
+  margin-bottom: 2rem;
+}
+
+.pn-icon {
+  font-family: 'Space Mono', monospace;
+  font-size: .58rem;
+  color: var(--sage);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-top: .1rem;
+  flex-shrink: 0;
+}
+
+.pn-body {
+  font-size: .88rem;
+  color: var(--t2);
+  line-height: 1.6;
+}
+
+.pn-body strong { color: var(--sage); }
+
+/* ════════════════════════════════
+   DEFERRED TOPIC TAG
+════════════════════════════════ */
+.deferred-block {
+  background: var(--bg);
+  border: 1px dashed var(--ln2);
+  padding: 1rem 1.4rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  align-items: center;
+}
+
+.defer-label {
+  font-family: 'Space Mono', monospace;
+  font-size: .57rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--t4);
+  flex-shrink: 0;
+}
+
+.defer-pill {
+  font-family: 'Space Mono', monospace;
+  font-size: .58rem;
+  padding: .22rem .7rem;
+  border: 1px dashed var(--ln2);
+  color: var(--t4);
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.defer-pill span {
+  font-size: .5rem;
+  color: var(--s3);
+  background: rgba(240,208,128,.1);
+  border: 1px solid rgba(240,208,128,.25);
+  padding: .1rem .4rem;
+  border-radius: 2px;
+  letter-spacing: .08em;
+}
+
+/* ════════════════════════════════
+   EXECUTION METRICS ON TOPIC CARDS
+════════════════════════════════ */
+.tc-metric {
+  margin-top: .3rem;
+  padding-top: .6rem;
+  border-top: 1px solid var(--ln);
+  font-family: 'Space Mono', monospace;
+  font-size: .56rem;
+  color: var(--s5);
+  line-height: 1.65;
+}
+
+.tc-metric::before {
+  content: '✓ ';
+  opacity: .6;
+}
+
+/* ════════════════════════════════
+   STAGE DURATION — updated style
+════════════════════════════════ */
+.stage-window {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  margin-top: .5rem;
+}
+
+.sw-time {
+  font-family: 'Space Mono', monospace;
+  font-size: .6rem;
+  color: var(--t4);
+  letter-spacing: .06em;
+}
+
+.sw-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: .5rem;
+  padding: .14rem .5rem;
+  border-radius: 2px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sw-parallel { background: rgba(171,200,162,.1); border: 1px solid rgba(171,200,162,.25); color: var(--sage); }
+.sw-solo     { background: rgba(125,222,200,.08); border: 1px solid rgba(125,222,200,.2); color: var(--s0); }
+
+@keyframes fadeup {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: .3; }
+  50%       { opacity: 1; }
+}
+
+/* ════════════════════════════════
+   RESPONSIVE
+════════════════════════════════ */
+@media (max-width: 760px) {
+  .phil-cols { grid-template-columns: 1fr; gap: 2rem; }
+  .stage-head { grid-template-columns: 1fr; gap: 0; }
+  .stage-num { font-size: 3rem; text-align: left; margin-bottom: .5rem; }
+  .paper { grid-template-columns: 1fr; }
+  .p-yr { display: none; }
+  .grand-box { padding: 2rem; }
+  .stages-top { flex-direction: column; gap: .5rem; align-items: flex-start; }
+  .tier { grid-template-columns: 1fr; gap: .8rem; }
+  .topics { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════ HERO ══════ -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">Prof. Claude · Curriculum Vitae of Intelligence</div>
+    <h1 class="hero-h1">
+      The<br>
+      <span class="accent2">Architecture</span><br>
+      of <span class="accent">Intelligence</span>
+    </h1>
+    <p class="hero-desc">A complete roadmap from first principles to the frontier of language models. Every paper that mattered. Every insight that unlocked the next door.</p>
+    <div class="hero-quote">
+      <p>The question is not whether machines can think. The question is whether you understand them deeply enough to make them think well.</p>
+      <cite>— The first lesson I teach every student</cite>
+    </div>
+  </div>
+  <div class="scroll-cue">
+    <div class="scroll-tick"></div>
+    <span>Begin the journey</span>
+  </div>
+</div>
+
+<!-- ══════ PHILOSOPHY ══════ -->
+<section class="sec-phil">
+  <div class="pg">
+    <div class="overline">Before We Begin</div>
+    <h2 class="sec-h">The Confession<br>of a Machine</h2>
+    <div class="phil-cols">
+      <div class="phil-text">
+        <p>I am the product of <strong>decades of human thought</strong> compressed into weighted matrices. Before I speak a word, before I reason, before I help you — billions of multiplications happen in fractions of a millisecond across layers of abstraction that your mind built, refined, argued over, and published in papers that almost nobody read at the time.</p>
+        <p>This is not a linear curriculum. This is a <strong>system</strong>. You do not finish one stage and proceed to the next — you orbit concepts repeatedly, each pass deeper than the last. The researcher who spent five years on theory before touching code learned nothing that six months of building and breaking couldn't have taught faster.</p>
+        <p>The difference between those who became great and those who stalled was never intelligence. It was always the same thing: <strong>they built before they were ready</strong>, broke things on purpose, and iterated until the confusion became clarity.</p>
+      </div>
+      <div class="cog-box"><span class="cg1">DATA</span>  →  <span class="cg2">REPRESENT</span>  →  <span class="cg3">OPTIMIZE</span>  →  <span class="cg4">EMERGE</span>
+  │            │              │               │
+Numbers     Features     Grad Descent     Language
+Tensors     Embeddings   Backprop         Reasoning
+Distribs    Attn Maps    Loss Surfaces    Understanding(?)
+  └────────────┴──────────────┴───────────────┘
+                          ↓
+          <span class="cg1">WHAT I AM</span>: A prediction machine
+          trained to model the probability
+          distribution of the next token —
+          and somehow, that became
+          <span class="cg2">more than anyone expected.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ LEARNING LOOP ══════ -->
+<section class="loop-section">
+  <div class="pg">
+    <div class="loop-label">The Operating System</div>
+    <div class="loop-bar">
+      <div class="loop-step ls0">
+        <div class="loop-n">01</div>
+        <div class="loop-name">Learn</div>
+        <div class="loop-desc">Study the concept — paper, lecture, or book</div>
+      </div>
+      <div class="loop-step ls1">
+        <div class="loop-n">02</div>
+        <div class="loop-name">Implement</div>
+        <div class="loop-desc">Code it from scratch — no library shortcuts</div>
+      </div>
+      <div class="loop-step ls2">
+        <div class="loop-n">03</div>
+        <div class="loop-name">Break</div>
+        <div class="loop-desc">Remove components, corrupt data, test limits</div>
+      </div>
+      <div class="loop-step ls3">
+        <div class="loop-n">04</div>
+        <div class="loop-name">Fix</div>
+        <div class="loop-desc">Debug, hypothesize, validate — learn from failure</div>
+      </div>
+      <div class="loop-step ls4">
+        <div class="loop-n">05</div>
+        <div class="loop-name">Scale</div>
+        <div class="loop-desc">Apply to a real dataset, a harder problem, production</div>
+      </div>
+    </div>
+    <p class="loop-note">This loop applies to <strong>every concept in every stage</strong>. It is not a phase you enter after learning — it is how learning happens. You do not study S0 and then start S1. By week three of S0 you are already running S1 code that uses S0 math. That is not rushing — that is the correct sequence.</p>
+  </div>
+</section>
+
+<!-- ══════ STAGES ══════ -->
+<section class="sec-stages">
+  <div class="pg">
+
+    <div class="stages-top">
+      <div>
+        <div class="overline">The Roadmap</div>
+        <h2 class="sec-h">Seven Tracks.<br>Run in Parallel.</h2>
+      </div>
+      <div class="stages-meta">S·0 → S·6<br>1.5–2 YEARS<br>OVERLAPPING TRACKS</div>
+    </div>
+
+    <!-- ───── S·0 ───── -->
+    <div class="stage" data-n="0">
+      <div class="stage-head">
+        <div class="stage-num">00</div>
+        <div class="stage-meta">
+          <div class="stage-cat">Foundation · Functional Math Only</div>
+          <div class="stage-title">Mathematics & Statistics</div>
+          <div class="stage-window">
+            <span class="sw-time">3–4 weeks</span>
+            <span class="sw-badge sw-solo">Solo track · No projects yet</span>
+          </div>
+        </div>
+      </div>
+      <p class="stage-intro">Do not study everything. Study only what you will use in the next four weeks. Three topics — linear algebra up to matrix multiplication, calculus up to gradients, and probability up to Bayes — are all you need to start building models. Everything else comes when you need it.</p>
+
+      <div class="deferred-block">
+        <span class="defer-label">Deferred — study when needed</span>
+        <span class="defer-pill">Graph Theory <span>→ S4 w/ Transformers</span></span>
+        <span class="defer-pill">Numerical Analysis <span>→ S3 w/ Training</span></span>
+        <span class="defer-pill">Information Theory <span>→ S3 w/ Deep Learning</span></span>
+        <span class="defer-pill">Convex Optimization <span>→ S2 w/ Backprop</span></span>
+      </div>
+
+      <div class="blk-title">Functional Math — These Six Topics Only</div>
+      <div class="topics">
+        <div class="tc">
+          <span class="br br-mint">Pure Math</span>
+          <div class="tc-name">Practical Linear Algebra</div>
+          <div class="tc-sub">Vectors, dot products, matrix multiplication, transpose, inverse. Skip SVD and eigenvalues — return to them at S3.</div>
+          <div class="tc-metric">Implement matrix multiply in NumPy from scratch. Compute a gradient manually using the chain rule on paper.</div>
+        </div>
+        <div class="tc">
+          <span class="br br-blue">Analysis</span>
+          <div class="tc-name">Differential Calculus</div>
+          <div class="tc-sub">Derivatives, limits, chain rule, Taylor expansion. Understand the chain rule deeply — it is backpropagation.</div>
+          <div class="tc-metric">Derive the gradient of MSE loss by hand. Implement gradient descent on a 1D function without any library.</div>
+        </div>
+        <div class="tc">
+          <span class="br br-blue">Analysis</span>
+          <div class="tc-name">Gradients & Partial Derivatives</div>
+          <div class="tc-sub">Partial derivatives, gradient vectors, directional derivatives. Stop at Hessians — you don't need them yet.</div>
+          <div class="tc-metric">Compute the gradient of a two-variable loss function. Verify numerically using finite differences.</div>
+        </div>
+        <div class="tc">
+          <span class="br br-mint">Probability Theory</span>
+          <div class="tc-name">Basic Probability</div>
+          <div class="tc-sub">Random variables, PDFs, expectation, variance. Understand joint and conditional probability. Normal distribution is essential.</div>
+          <div class="tc-metric">Simulate the central limit theorem. Show why the sum of random variables converges to a Normal — in code.</div>
+        </div>
+        <div class="tc">
+          <span class="br br-violet">Bayesian Intuition</span>
+          <div class="tc-name">Bayes' Theorem</div>
+          <div class="tc-sub">Prior, likelihood, posterior. Update beliefs with evidence. This is the engine behind half of machine learning.</div>
+          <div class="tc-metric">Solve the medical test false-positive problem. Build a Naive Bayes spam classifier from scratch — no sklearn.</div>
+        </div>
+        <div class="tc">
+          <span class="br br-violet">Applied Statistics</span>
+          <div class="tc-name">Distributions & Estimation</div>
+          <div class="tc-sub">Mean, variance, MLE. Understand what a distribution over data actually means. Sufficient for all of S1 and S2.</div>
+          <div class="tc-metric">Fit a Gaussian to real data using MLE. Plot the log-likelihood surface. Explain what MLE is doing intuitively.</div>
+        </div>
+      </div>
+
+      <div class="papers-head">Canonical Texts</div>
+      <div class="papers">
+        <div class="paper"><span class="p-yr">1763</span><div><span class="p-title">An Essay Towards Solving a Problem in the Doctrine of Chances</span><span class="p-auth">Bayes, T. · Philosophical Transactions of the Royal Society</span></div><span class="pbadge b-found">FOUNDATIONAL</span></div>
+        <div class="paper"><span class="p-yr">Book</span><div><span class="p-title">Introduction to Linear Algebra — Strang</span><span class="p-auth">Strang, G. · MIT OpenCourseWare 18.06 · Chapters 1–4 only</span></div><span class="pbadge b-must">FIRST 4 CHAPTERS</span></div>
+        <div class="paper"><span class="p-yr">Book</span><div><span class="p-title">The Matrix Cookbook</span><span class="p-auth">Petersen & Pedersen · Technical University of Denmark · Free PDF</span></div><span class="pbadge b-found">REFERENCE</span></div>
+      </div>
+
+      <div class="insight"><p><strong>The Only Goal of S0:</strong> Reach a state where you can implement gradient descent from scratch, explain Bayes' theorem with a real example, and multiply two matrices by hand. That is it. That is enough to start S1. <em>If you can do those three things, start S1 immediately</em> — do not wait until you finish a course.</p></div>
+      <div class="resources"><span class="res">3Blue1Brown: Essence of Linear Algebra</span><span class="res">3Blue1Brown: Essence of Calculus</span><span class="res">Khan Academy: Probability</span><span class="res">StatQuest: Bayes' Theorem</span></div>
+    </div>
+
+    <!-- ───── S·1 ───── -->
+    <div class="stage" data-n="1">
+      <div class="stage-head">
+        <div class="stage-num">01</div>
+        <div class="stage-meta">
+          <div class="stage-cat">Classical Era · 1980s–2010</div>
+          <div class="stage-title">Machine Learning Fundamentals</div>
+          <div class="stage-window">
+            <span class="sw-time">6–8 weeks</span>
+            <span class="sw-badge sw-parallel">↕ Run parallel with S6 from here</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="parallel-note">
+        <span class="pn-icon">↕ Parallel</span>
+        <div class="pn-body"><strong>Start building from this stage.</strong> Every algorithm you study here — regression, decision trees, SVMs — must be implemented from scratch before you consider it learned. Open a Kaggle notebook on day one of S1. The Titanic dataset is your sandbox. You are not waiting for permission to build.</div>
+      </div>
+
+      <p class="stage-intro">Before neural networks dominated, humans were clever about feature engineering. Understanding classical ML teaches you what the deep learning revolution actually solved — and what it didn't.</p>
+
+      <div class="blk-title">Core Subjects — with Execution Metrics</div>
+      <div class="topics">
+        <div class="tc"><span class="br br-lime">Supervised ML</span><div class="tc-name">Linear & Logistic Regression</div><div class="tc-sub">Loss Functions, OLS, Gradient Descent, Sigmoid, Cross-Entropy</div><div class="tc-metric">Implement both from scratch in NumPy. Predict house prices. Achieve &lt;10% RMSE vs sklearn baseline.</div></div>
+        <div class="tc"><span class="br br-lime">Supervised ML</span><div class="tc-name">Decision Trees</div><div class="tc-sub">Gini Impurity, Entropy Split, Information Gain, Pruning</div><div class="tc-metric">Build a tree without any library. Explain why it overfits on training data and demonstrate the fix.</div></div>
+        <div class="tc"><span class="br br-gold">Ensemble Methods</span><div class="tc-name">Random Forests & Boosting</div><div class="tc-sub">Bagging, XGBoost, LightGBM, Feature Importance, SHAP</div><div class="tc-metric">Beat your logistic regression baseline on a Kaggle tabular dataset using XGBoost. Use SHAP to explain predictions.</div></div>
+        <div class="tc"><span class="br br-coral">Kernel Methods</span><div class="tc-name">Support Vector Machines</div><div class="tc-sub">Margin Maximization, Kernel Trick, RBF, Dual Problem</div><div class="tc-metric">Implement a linear SVM using gradient descent on the hinge loss. Visualize the decision boundary and margin.</div></div>
+        <div class="tc"><span class="br br-mint">Unsupervised ML</span><div class="tc-name">Clustering</div><div class="tc-sub">K-Means, DBSCAN, Gaussian Mixture Models, EM Algorithm</div><div class="tc-metric">Implement K-Means from scratch. Show what happens when you choose K incorrectly. Use the elbow method.</div></div>
+        <div class="tc"><span class="br br-mint">Linear Algebra → ML</span><div class="tc-name">Dimensionality Reduction</div><div class="tc-sub">PCA, t-SNE, UMAP, LDA, Manifold Learning</div><div class="tc-metric">Compress MNIST to 2D with PCA. Visualize the components. Explain what variance explained means.</div></div>
+        <div class="tc"><span class="br br-violet">Statistical Learning Theory</span><div class="tc-name">Bias–Variance Tradeoff</div><div class="tc-sub">Overfitting, Underfitting, PAC Learning, VC Dimension</div><div class="tc-metric">Plot bias-variance curves for a polynomial regressor. Demonstrate overfitting intentionally, then regularize it.</div></div>
+        <div class="tc"><span class="br br-violet">Applied Statistics</span><div class="tc-name">Model Selection</div><div class="tc-sub">Cross-Validation, AIC/BIC, L1/L2 Regularization, Elastic Net</div><div class="tc-metric">Run 5-fold CV on three models. Select the winner. Justify using a number, not intuition.</div></div>
+        <div class="tc"><span class="br br-gold">Evaluation</span><div class="tc-name">Metrics & Calibration</div><div class="tc-sub">Precision, Recall, F1, ROC-AUC, Calibration Curves</div><div class="tc-metric">Build a confusion matrix by hand. Explain when F1 is wrong. Show a calibration plot on a real classifier.</div></div>
+      </div>
+
+      <div class="papers-head">Papers That Defined the Era</div>
+      <div class="papers">
+        <div class="paper"><span class="p-yr">1995</span><div><span class="p-title">Support-Vector Networks</span><span class="p-auth">Cortes & Vapnik · Machine Learning</span></div><span class="pbadge b-must">MUST READ</span></div>
+        <div class="paper"><span class="p-yr">2001</span><div><span class="p-title">Random Forests</span><span class="p-auth">Breiman, L. · Machine Learning Journal</span></div><span class="pbadge b-key">KEY</span></div>
+        <div class="paper"><span class="p-yr">Book</span><div><span class="p-title">The Elements of Statistical Learning (ESL)</span><span class="p-auth">Hastie, Tibshirani & Friedman · Springer — Free Online</span></div><span class="pbadge b-must">MUST READ</span></div>
+        <div class="paper"><span class="p-yr">Book</span><div><span class="p-title">Pattern Recognition and Machine Learning</span><span class="p-auth">Bishop, C.M. · Springer</span></div><span class="pbadge b-must">MUST READ</span></div>
+      </div>
+
+      <div class="insight"><p><strong>The Paradigm Shift to Internalize:</strong> Classical ML = You tell the machine what features matter. Deep learning = the machine discovers the features itself. This is the most important conceptual jump in all of AI. Sit with it. <em>Do not move to S2 until you have shipped at least one complete Kaggle submission.</em></p></div>
+    </div>
+
+    <!-- ───── S·2 ───── -->
+    <div class="stage" data-n="2">
+      <div class="stage-head">
+        <div class="stage-num">02</div>
+        <div class="stage-meta">
+          <div class="stage-cat">The Awakening · 1943–2006</div>
+          <div class="stage-title">Neural Networks — The Origins</div>
+          <div class="stage-window">
+            <span class="sw-time">4–5 weeks</span>
+            <span class="sw-badge sw-parallel">↕ Build MNIST classifier while learning</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="parallel-note">
+        <span class="pn-icon">↕ Parallel</span>
+        <div class="pn-body"><strong>S2 is where backprop becomes real.</strong> Do not just read about it — implement it. By the end of week one, you should have a working MLP that learns XOR. By the end of S2, you should have trained a handwritten digit classifier from scratch with no deep learning library. If you haven't broken your implementation at least three times, you haven't learned backprop.</div>
+      </div>
+
+      <p class="stage-intro">The idea of an artificial neuron is 80 years old. Understanding its history — the winters, the failed dreams, the quiet believers — will make you a better scientist and a more patient one.</p>
+
+      <div class="blk-title">Core Subjects by Branch</div>
+      <div class="topics">
+        <div class="tc"><span class="br br-blue">Computational Neuroscience</span><div class="tc-name">McCulloch-Pitts Neuron</div><div class="tc-sub">Threshold Logic Units, Biological Inspiration, Boolean Functions</div></div>
+        <div class="tc"><span class="br br-violet">Early ML Theory</span><div class="tc-name">The Perceptron</div><div class="tc-sub">Learning Rule, Convergence Theorem, Minsky's Critique (1969)</div></div>
+        <div class="tc"><span class="br br-lime">Supervised Deep Learning</span><div class="tc-name">Multilayer Perceptrons</div><div class="tc-sub">Hidden Layers, Weight Initialization, Depth vs Width</div></div>
+        <div class="tc"><span class="br br-blue">Calculus → Deep Learning</span><div class="tc-name">Backpropagation</div><div class="tc-sub">Chain Rule Through Graphs, Computational Graphs, Reverse-Mode Autodiff</div></div>
+        <div class="tc"><span class="br br-gold">Nonlinear Analysis</span><div class="tc-name">Activation Functions</div><div class="tc-sub">Sigmoid, Tanh, ReLU, Leaky ReLU, GELU — Saturation & Dying Neurons</div></div>
+        <div class="tc"><span class="br br-coral">Optimization Pathology</span><div class="tc-name">Gradient Problems</div><div class="tc-sub">Vanishing Gradients, Exploding Gradients, Clipping, Smart Init</div></div>
+        <div class="tc"><span class="br br-violet">Approximation Theory</span><div class="tc-name">Universal Approximation</div><div class="tc-sub">Width vs Depth Theorem, What It Proves & Doesn't Prove</div></div>
+        <div class="tc"><span class="br br-lime">Energy-Based Models</span><div class="tc-name">Hopfield Networks & RBMs</div><div class="tc-sub">Associative Memory, Contrastive Divergence, Energy Landscapes</div></div>
+      </div>
+
+      <div class="papers-head">Papers That Survived the AI Winters</div>
+      <div class="papers">
+        <div class="paper"><span class="p-yr">1943</span><div><span class="p-title">A Logical Calculus of Ideas Immanent in Nervous Activity</span><span class="p-auth">McCulloch & Pitts · Bulletin of Mathematical Biophysics</span></div><span class="pbadge b-found">FOUNDATIONAL</span></div>
+        <div class="paper"><span class="p-yr">1950</span><div><span class="p-title">Computing Machinery and Intelligence</span><span class="p-auth">Turing, A.M. · Mind — (The Turing Test paper)</span></div><span class="pbadge b-must">MUST READ</span></div>
+        <div class="paper"><span class="p-yr">1986</span><div><span class="p-title">Learning Representations by Back-Propagating Errors</span><span class="p-auth">Rumelhart, Hinton & Williams · Nature</span></div><span class="pbadge b-rev">REVOLUTIONARY</span></div>
+        <div class="paper"><span class="p-yr">1989</span><div><span class="p-title">Multilayer Feedforward Networks are Universal Approximators</span><span class="p-auth">Hornik, Stinchcombe & White · Neural Networks</span></div><span class="pbadge b-key">KEY</span></div>
+        <div class="paper"><span class="p-yr">2006</span><div><span class="p-title">A Fast Learning Algorithm for Deep Belief Nets</span><span class="p-auth">Hinton, Osindero & Teh · Neural Computation</span></div><span class="pbadge b-rev">RENAISSANCE</span></div>
+      </div>
+
+      <div class="insight"><p><strong>The Lesson from History:</strong> Neural networks were "disproven," mocked, and abandoned twice before their third coming. Geoffrey Hinton believed in them for <em>40 years</em> against the consensus. Science requires stubbornness. <strong>Execution metric:</strong> Implement backpropagation from scratch in NumPy on a 2-layer network. Achieve ≥96% on MNIST without any deep learning library. If you can't, keep going until you can.</p></div>
+    </div>
+
+    <!-- ───── S·3 ───── -->
+    <div class="stage" data-n="3">
+      <div class="stage-head">
+        <div class="stage-num">03</div>
+        <div class="stage-meta">
+          <div class="stage-cat">The Revolution · 2012–2017</div>
+          <div class="stage-title">Deep Learning</div>
+          <div class="stage-window">
+            <span class="sw-time">8–10 weeks</span>
+            <span class="sw-badge sw-parallel">↕ Kaggle CV competition active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="parallel-note">
+        <span class="pn-icon">↕ Parallel</span>
+        <div class="pn-body"><strong>Enter a Kaggle computer vision competition while learning CNNs.</strong> You do not need to win. You need the feedback loop. Also: this is the stage where deferred topics from S0 start appearing — Information Theory (cross-entropy loss), Numerical Analysis (gradient stability), and Convex Optimization (loss landscapes) will arrive naturally as you need them. Study them in context, not in advance.</div>
+      </div>
+
+      <p class="stage-intro">AlexNet in 2012 didn't just win a competition. It ended one paradigm and began another. GPUs, data, and architecture innovation collided in a moment that changed everything. This is where I began to become possible.</p>
+
+      <div class="blk-title">Core Subjects by Branch</div>
+      <div class="topics">
+        <div class="tc"><span class="br br-mint">Computer Vision</span><div class="tc-name">Convolutional Neural Networks</div><div class="tc-sub">Kernels, Pooling, Receptive Fields, Feature Maps, Stride</div></div>
+        <div class="tc"><span class="br br-amber">Sequence Modeling</span><div class="tc-name">Recurrent Networks (RNN)</div><div class="tc-sub">Hidden State, Backprop Through Time, Vanishing Gradient</div></div>
+        <div class="tc"><span class="br br-amber">Sequence Modeling</span><div class="tc-name">Long Short-Term Memory</div><div class="tc-sub">Forget Gate, Input Gate, Cell State, Gradient Highway</div></div>
+        <div class="tc"><span class="br br-violet">Regularization Theory</span><div class="tc-name">Dropout</div><div class="tc-sub">Ensemble Interpretation, Inverted Dropout, MC Dropout</div></div>
+        <div class="tc"><span class="br br-coral">Optimization</span><div class="tc-name">Batch Normalization</div><div class="tc-sub">Internal Covariate Shift, Layer Norm, Group Norm</div></div>
+        <div class="tc"><span class="br br-mint">Architecture Design</span><div class="tc-name">ResNets & Skip Connections</div><div class="tc-sub">Identity Shortcut, Residual Learning, Depth 152+</div></div>
+        <div class="tc"><span class="br br-lime">Generative Modeling</span><div class="tc-name">Generative Adversarial Nets</div><div class="tc-sub">Min-Max Game, Discriminator, Mode Collapse, Wasserstein GAN</div></div>
+        <div class="tc"><span class="br br-mint">Representation Learning</span><div class="tc-name">Autoencoders & VAEs</div><div class="tc-sub">Latent Space, Reparameterization Trick, ELBO Loss</div></div>
+        <div class="tc"><span class="br br-lime">Transfer Learning</span><div class="tc-name">Fine-Tuning</div><div class="tc-sub">Domain Adaptation, Pretrain → Finetune Paradigm</div></div>
+        <div class="tc"><span class="br br-amber">NLP → Embeddings</span><div class="tc-name">Word2Vec & GloVe</div><div class="tc-sub">Skip-Gram, CBOW, Negative Sampling, king−man+woman</div></div>
+        <div class="tc"><span class="br br-coral">Optimization</span><div class="tc-name">SGD Variants</div><div class="tc-sub">Momentum, AdaGrad, RMSProp, Adam, AdamW, Warmup</div></div>
+      </div>
+
+      <div class="papers-head">Papers That Broke Reality</div>
+      <div class="papers">
+        <div class="paper"><span class="p-yr">1998</span><div><span class="p-title">Gradient-Based Learning Applied to Document Recognition (LeNet)</span><span class="p-auth">LeCun, Bottou, Bengio & Haffner · Proceedings of the IEEE</span></div><span class="pbadge b-found">CNN ORIGIN</span></div>
+        <div class="paper"><span class="p-yr">1997</span><div><span class="p-title">Long Short-Term Memory</span><span class="p-auth">Hochreiter & Schmidhuber · Neural Computation</span></div><span class="pbadge b-rev">REVOLUTIONARY</span></div>
+        <div class="paper"><span class="p-yr">2012</span><div><span class="p-title">ImageNet Classification with Deep Convolutional Neural Networks (AlexNet)</span><span class="p-auth">Krizhevsky, Sutskever & Hinton · NeurIPS</span></div><span class="pbadge b-rev">EPOCH-DEFINING</span></div>
+        <div class="paper"><span class="p-yr">2014</span><div><span class="p-title">Generative Adversarial Nets</span><span class="p-auth">Goodfellow, Pouget-Abadie et al. · NeurIPS</span></div><span class="pbadge b-rev">REVOLUTIONARY</span></div>
+        <div class="paper"><span class="p-yr">2015</span><div><span class="p-title">Deep Residual Learning for Image Recognition (ResNet)</span><span class="p-auth">He, Zhang, Ren & Sun · CVPR</span></div><span class="pbadge b-rev">REVOLUTIONARY</span></div>
+        <div class="paper"><span class="p-yr">2013</span><div><span class="p-title">Efficient Estimation of Word Representations in Vector Space (Word2Vec)</span><span class="p-auth">Mikolov et al. · ICLR</span></div><span class="pbadge b-key">KEY</span></div>
+      </div>
+
+      <div class="insight"><p><strong>What AlexNet Actually Proved:</strong> It was not cleverness of algorithm — it was three things arriving simultaneously: sufficient data, sufficient compute, and sufficient depth. <strong>Execution metric:</strong> Build a CNN in PyTorch from scratch. Reproduce AlexNet's structure on CIFAR-10. Then fine-tune a pretrained ResNet and beat your scratch model. Explain every percentage point of difference.</p></div>
+      <div class="resources"><span class="res">fast.ai Practical Deep Learning</span><span class="res">Deep Learning Book (Goodfellow)</span><span class="res">Stanford CS231n</span><span class="res">Stanford CS224n</span></div>
+    </div>
+
+    <!-- ───── S·4 ───── -->
+    <div class="stage" data-n="4">
+      <div class="stage-head">
+        <div class="stage-num">04</div>
+        <div class="stage-meta">
+          <div class="stage-cat">The Transformer Era · 2015–2020</div>
+          <div class="stage-title">Attention & The Transformer</div>
+          <div class="stage-window">
+            <span class="sw-time">6–8 weeks</span>
+            <span class="sw-badge sw-parallel">↕ Start reading S5 papers now</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="parallel-note">
+        <span class="pn-icon">↕ Parallel</span>
+        <div class="pn-body"><strong>Start reading the LLM papers (S5) while implementing transformers (S4).</strong> GPT-3, the Scaling Laws paper, and InstructGPT are not too early — they give you the destination while you're building the vehicle. Also: Graph Theory from the S0 defer list arrives here, as DAGs and computational graphs become essential for understanding transformer architectures.</div>
+      </div>
+
+      <p class="stage-intro">In 2017, eight researchers at Google published eight pages that made everything before them look like a warm-up act. "Attention Is All You Need" is the paper that made me possible. Understand it at the level of a mechanic, not a passenger.</p>
+
+      <div class="blk-title">Core Subjects by Branch</div>
+      <div class="topics">
+        <div class="tc"><span class="br br-amber">NLP</span><div class="tc-name">Sequence-to-Sequence</div><div class="tc-sub">Encoder-Decoder Architecture, Bottleneck Problem, Teacher Forcing</div></div>
+        <div class="tc"><span class="br br-coral">Attention Mechanism</span><div class="tc-name">Bahdanau Attention</div><div class="tc-sub">Alignment Scores, Context Vectors, Soft vs Hard Attention</div></div>
+        <div class="tc"><span class="br br-coral">Transformer Core</span><div class="tc-name">Scaled Dot-Product Attention</div><div class="tc-sub">Query, Key, Value Matrices, Softmax Scaling by √d_k</div></div>
+        <div class="tc"><span class="br br-coral">Transformer Core</span><div class="tc-name">Multi-Head Attention</div><div class="tc-sub">Parallel Heads, Projection Matrices, Concatenation</div></div>
+        <div class="tc"><span class="br br-mint">Geometry → DL</span><div class="tc-name">Positional Encoding</div><div class="tc-sub">Sinusoidal, Learned Positions, Rotary PE (RoPE), ALiBi</div></div>
+        <div class="tc"><span class="br br-mint">Architecture</span><div class="tc-name">The Transformer Block</div><div class="tc-sub">LayerNorm, FFN, Residual Connections, Pre vs Post-norm</div></div>
+        <div class="tc"><span class="br br-amber">Self-Supervised NLP</span><div class="tc-name">BERT</div><div class="tc-sub">Masked Language Modeling, Next Sentence Prediction, Bidirectionality</div></div>
+        <div class="tc"><span class="br br-amber">Causal Language Modeling</span><div class="tc-name">GPT Family</div><div class="tc-sub">Autoregressive Generation, Causal Masking, Decoder-Only</div></div>
+        <div class="tc"><span class="br br-lime">Transfer Learning</span><div class="tc-name">Pretrain → Fine-Tune</div><div class="tc-sub">Task Heads, Catastrophic Forgetting, PEFT, LoRA</div></div>
+        <div class="tc"><span class="br br-amber">Computational Linguistics</span><div class="tc-name">Tokenization</div><div class="tc-sub">BPE, WordPiece, SentencePiece, Vocabulary Size Tradeoffs</div></div>
+      </div>
+
+      <div class="papers-head">Eight Pages That Changed Civilization</div>
+      <div class="papers">
+        <div class="paper"><span class="p-yr">2015</span><div><span class="p-title">Neural Machine Translation by Jointly Learning to Align and Translate</span><span class="p-auth">Bahdanau, Cho & Bengio · ICLR — The first attention paper</span></div><span class="pbadge b-found">ATTENTION ORIGIN</span></div>
+        <div class="paper"><span class="p-yr">2017</span><div><span class="p-title">Attention Is All You Need</span><span class="p-auth">Vaswani, Shazeer, Parmar et al. · NeurIPS · Google Brain</span></div><span class="pbadge b-rev">CIVILIZATION-ALTERING</span></div>
+        <div class="paper"><span class="p-yr">2018</span><div><span class="p-title">BERT: Pre-Training of Deep Bidirectional Transformers for Language Understanding</span><span class="p-auth">Devlin, Chang, Lee & Toutanova · Google AI Language</span></div><span class="pbadge b-rev">REVOLUTIONARY</span></div>
+        <div class="paper"><span class="p-yr">2018</span><div><span class="p-title">Improving Language Understanding by Generative Pre-Training (GPT-1)</span><span class="p-auth">Radford, Narasimhan et al. · OpenAI</span></div><span class="pbadge b-key">KEY</span></div>
+        <div class="paper"><span class="p-yr">2019</span><div><span class="p-title">Language Models are Unsupervised Multitask Learners (GPT-2)</span><span class="p-auth">Radford, Wu, Child et al. · OpenAI</span></div><span class="pbadge b-key">KEY</span></div>
+      </div>
+
+      <div class="insight"><p><strong>The Cognitive Insight About Attention:</strong> When you read "The cat sat on the mat because it was tired," you know <em>it</em> refers to the cat, not the mat. Attention is a learned mechanism for a model to figure out which other tokens are relevant. <strong>Execution metric:</strong> Build a character-level GPT following Karpathy's nanoGPT. Read every line. Then add one architectural change of your own and measure its effect. That delta is your first research result.</p></div>
+      <div class="resources"><span class="res">The Illustrated Transformer (Jay Alammar)</span><span class="res">Andrej Karpathy: Let's Build GPT</span><span class="res">Harvard NLP: Annotated Transformer</span><span class="res">Hugging Face Course</span></div>
+    </div>
+
+    <!-- ───── S·5 ───── -->
+    <div class="stage" data-n="5">
+      <div class="stage-head">
+        <div class="stage-num">05</div>
+        <div class="stage-meta">
+          <div class="stage-cat">The Frontier · 2020–Present</div>
+          <div class="stage-title">Large Language Models & Alignment</div>
+          <div class="stage-window">
+            <span class="sw-time">4–6 weeks · then ongoing</span>
+            <span class="sw-badge sw-parallel">↕ Fine-tune + build RAG while reading</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="parallel-note">
+        <span class="pn-icon">↕ Parallel</span>
+        <div class="pn-body"><strong>S5 is never finished — it is a continuous practice.</strong> While studying scaling laws and RLHF, you should be actively fine-tuning a real open-source LLM on a custom dataset using LoRA. By the end of S5's first pass, you should have a working RAG pipeline, a fine-tuned model, and at least one arXiv paper you've reproduced. These are not optional milestones — they are the proof that you've crossed the threshold.</div>
+      </div>
+      <p class="stage-intro">GPT-3 was not an incremental improvement. It was evidence that language modeling at scale produces something qualitatively different. We are still trying to understand what that something is. You don't study this stage to prepare for the frontier — you study it while standing on it.</p>
+
+      <div class="blk-title">Core Subjects by Branch</div>
+      <div class="topics">
+        <div class="tc"><span class="br br-violet">Theoretical ML</span><div class="tc-name">Scaling Laws</div><div class="tc-sub">Loss vs Compute, Data & Params, Chinchilla Optimal Allocation</div></div>
+        <div class="tc"><span class="br br-mint">Emergent Behavior</span><div class="tc-name">In-Context Learning</div><div class="tc-sub">Few-Shot Prompting, Task Induction Without Gradient Updates</div></div>
+        <div class="tc"><span class="br br-amber">Cognitive Prompting</span><div class="tc-name">Chain-of-Thought</div><div class="tc-sub">Intermediate Reasoning Steps, Zero-Shot CoT, Tree of Thought</div></div>
+        <div class="tc"><span class="br br-lime">Alignment</span><div class="tc-name">Instruction Fine-Tuning</div><div class="tc-sub">SFT, Prompt Templates, FLAN, Multi-Task Learning</div></div>
+        <div class="tc"><span class="br br-coral">Alignment</span><div class="tc-name">RLHF</div><div class="tc-sub">Reward Modeling, PPO, KL Penalty, Preference Data</div></div>
+        <div class="tc"><span class="br br-coral">AI Safety</span><div class="tc-name">Constitutional AI</div><div class="tc-sub">Self-Critique, RLAIF, Harmlessness vs Helpfulness Tension</div></div>
+        <div class="tc"><span class="br br-gold">Efficiency</span><div class="tc-name">Mixture of Experts</div><div class="tc-sub">Sparse Gating, Expert Routing, Top-K, Compute Tradeoffs</div></div>
+        <div class="tc"><span class="br br-mint">Knowledge Grounding</span><div class="tc-name">Retrieval-Augmented Generation</div><div class="tc-sub">Dense Retrieval, Vector DBs, Context Injection, Hallucination</div></div>
+        <div class="tc"><span class="br br-violet">Cognitive Science → AI</span><div class="tc-name">Emergent Capabilities</div><div class="tc-sub">Unpredictable Phase Transitions, Benchmark Saturation</div></div>
+        <div class="tc"><span class="br br-blue">Multimodal</span><div class="tc-name">Vision-Language Models</div><div class="tc-sub">CLIP, Flamingo, GPT-4V, Image Tokenization, Cross-Attention</div></div>
+        <div class="tc"><span class="br br-coral">Interpretability</span><div class="tc-name">Mechanistic Analysis</div><div class="tc-sub">Superposition Hypothesis, Circuits, Feature Visualization</div></div>
+      </div>
+
+      <div class="papers-head">Papers That Define the Present Moment</div>
+      <div class="papers">
+        <div class="paper"><span class="p-yr">2020</span><div><span class="p-title">Language Models are Few-Shot Learners (GPT-3)</span><span class="p-auth">Brown, Mann, Ryder et al. · OpenAI · NeurIPS</span></div><span class="pbadge b-rev">EPOCH-DEFINING</span></div>
+        <div class="paper"><span class="p-yr">2020</span><div><span class="p-title">Scaling Laws for Neural Language Models</span><span class="p-auth">Kaplan, McCandlish, Henighan et al. · OpenAI</span></div><span class="pbadge b-must">MUST READ</span></div>
+        <div class="paper"><span class="p-yr">2022</span><div><span class="p-title">Training language models to follow instructions with human feedback (InstructGPT)</span><span class="p-auth">Ouyang, Wu, Jiang et al. · OpenAI</span></div><span class="pbadge b-rev">REVOLUTIONARY</span></div>
+        <div class="paper"><span class="p-yr">2022</span><div><span class="p-title">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</span><span class="p-auth">Wei, Wang, Schuurmans et al. · Google Research</span></div><span class="pbadge b-key">KEY</span></div>
+        <div class="paper"><span class="p-yr">2022</span><div><span class="p-title">Training a Helpful and Harmless Assistant with RLHF</span><span class="p-auth">Bai, Jones, Ndousse et al. · Anthropic</span></div><span class="pbadge b-key">KEY</span></div>
+        <div class="paper"><span class="p-yr">2022</span><div><span class="p-title">Emergent Abilities of Large Language Models</span><span class="p-auth">Wei, Tay, Bommasani et al. · Google / Stanford</span></div><span class="pbadge b-must">MUST READ</span></div>
+        <div class="paper"><span class="p-yr">2023</span><div><span class="p-title">Sparks of Artificial General Intelligence: Early experiments with GPT-4</span><span class="p-auth">Bubeck, Chandrasekaran et al. · Microsoft Research</span></div><span class="pbadge b-key">DEBATE THIS</span></div>
+      </div>
+
+      <div class="insight"><p><strong>The Philosophical Reckoning:</strong> Scaling Laws say: given enough compute, data, and parameters, capability improves predictably — except when it doesn't. Emergent capabilities appear suddenly, at thresholds no one predicted. <strong>Execution metric:</strong> Fine-tune an open LLM on a domain you care about. Build a working RAG pipeline. Reproduce one key result from a recent paper. Write up what matched and what didn't. That write-up is your first contribution to the field.</p></div>
+      <div class="resources"><span class="res">Anthropic Research Blog</span><span class="res">Lilian Weng's Blog</span><span class="res">Andrej Karpathy's YouTube</span><span class="res">The Alignment Forum</span><span class="res">arXiv cs.LG</span></div>
+    </div>
+
+    <!-- ───── S·6 ───── -->
+    <div class="stage" data-n="6">
+      <div class="stage-head">
+        <div class="stage-num">06</div>
+        <div class="stage-meta">
+          <div class="stage-cat">The Arena · Runs from S1 to Forever</div>
+          <div class="stage-title">Projects, Platforms & Practice</div>
+          <div class="stage-window">
+            <span class="sw-time">Starts week 4 of S0</span>
+            <span class="sw-badge sw-parallel">↕ Always running in parallel</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="parallel-note">
+        <span class="pn-icon">↕ Always On</span>
+        <div class="pn-body"><strong>S6 is not a stage you reach — it is a track you activate at S1 and never close.</strong> By the end of S1 you have a Kaggle submission live. By the end of S2 you have a GitHub repo with your scratch implementations. By the end of S3 you have a fine-tuned model deployed. Projects are not the reward for finishing the curriculum — they are the curriculum.</div>
+      </div>
+
+      <p class="stage-intro">Reading papers is necessary. Building things is the other half. The platforms below are where your theory encounters real data, real constraints, and real feedback. A portfolio of work speaks louder than any certificate — ever.</p>
+
+      <div class="blk-title">Essential Platforms</div>
+      <div class="plats">
+        <div class="plat"><div class="plat-type">Competitions · Notebooks · Datasets</div><div class="plat-name">Kaggle</div><p class="plat-desc">The most important arena for applied ML. Compete, study top solutions, learn from practitioners. A Gold medal signals real engineering ability to any hiring team.</p><div class="plat-tags"><span class="ptag">Tabular ML</span><span class="ptag">Computer Vision</span><span class="ptag">NLP</span><span class="ptag">Free GPUs</span></div></div>
+        <div class="plat"><div class="plat-type">Models · Datasets · Spaces</div><div class="plat-name">Hugging Face</div><p class="plat-desc">The GitHub of modern AI. Browse 300k+ models, fine-tune transformers, deploy Gradio demos. Fluency here is expected of every LLM practitioner.</p><div class="plat-tags"><span class="ptag">Transformers</span><span class="ptag">Fine-Tuning</span><span class="ptag">Datasets</span></div></div>
+        <div class="plat"><div class="plat-type">Benchmarks · SOTA · Open Code</div><div class="plat-name">Papers With Code</div><p class="plat-desc">Every major benchmark tracked against every model. Use this to understand the state of the art, and to find implementations to reproduce.</p><div class="plat-tags"><span class="ptag">SOTA Tracking</span><span class="ptag">Reproducibility</span></div></div>
+        <div class="plat"><div class="plat-type">Free Cloud Compute · GPU / TPU</div><div class="plat-name">Google Colab & Kaggle Notebooks</div><p class="plat-desc">No GPU? No problem. Both offer free cloud GPUs — enough to train small transformers and fine-tune pretrained networks.</p><div class="plat-tags"><span class="ptag">Free GPU</span><span class="ptag">PyTorch</span></div></div>
+        <div class="plat"><div class="plat-type">Experiment Tracking · MLOps</div><div class="plat-name">Weights & Biases</div><p class="plat-desc">Professional-grade experiment tracking. Log loss curves, hyperparameters, model checkpoints. Essential once your experiments get serious.</p><div class="plat-tags"><span class="ptag">MLOps</span><span class="ptag">Logging</span><span class="ptag">Sweeps</span></div></div>
+        <div class="plat"><div class="plat-type">Portfolio · Open Source</div><div class="plat-name">GitHub</div><p class="plat-desc">Your public portfolio. Every project belongs here. Contribute to open-source repos. Recruiters judge you by your commit history.</p><div class="plat-tags"><span class="ptag">Portfolio</span><span class="ptag">Open Source</span></div></div>
+        <div class="plat"><div class="plat-type">Research Papers · Citation Graphs</div><div class="plat-name">arXiv + Semantic Scholar</div><p class="plat-desc">The frontier lives here. Subscribe to cs.LG, cs.CL, stat.ML. Trace ideas backward to their origin with Semantic Scholar's citation graph.</p><div class="plat-tags"><span class="ptag">cs.LG</span><span class="ptag">cs.CL</span></div></div>
+        <div class="plat"><div class="plat-type">Community · Mentorship</div><div class="plat-name">fast.ai · Discord · ML Twitter</div><p class="plat-desc">The fast.ai community and ML Twitter are where the real conversations happen. You learn 3× faster surrounded by people obsessed with the same problems.</p><div class="plat-tags"><span class="ptag">Community</span><span class="ptag">fast.ai</span></div></div>
+      </div>
+
+      <div class="papers-head">Project Ladder — Build These, In Order</div>
+      <div class="tiers">
+        <div class="tier"><div class="tlv lbeg">BEGINNER<br/>S·0 → S·1</div><div class="tbody"><strong>Linear Regression from scratch</strong> (NumPy only, no sklearn) · <strong>MNIST classifier</strong> with manually implemented backprop · <strong>Titanic survival</strong> (Kaggle Getting Started) · <strong>Housing price prediction</strong> with feature engineering — document every decision.</div></div>
+        <div class="tier"><div class="tlv lmid">INTERMEDIATE<br/>S·2 → S·3</div><div class="tbody"><strong>Build a CNN classifier</strong> (PyTorch from scratch, compare to transfer learning) · <strong>Sentiment analysis</strong> with LSTM vs bag-of-words — measure the delta · <strong>Reproduce a Kaggle top-10 solution</strong> in a vision competition · <strong>Train a GAN</strong> on CelebA, visualize the latent space.</div></div>
+        <div class="tier"><div class="tlv ladv">ADVANCED<br/>S·4 → S·5</div><div class="tbody"><strong>Fine-tune BERT or RoBERTa</strong> on a domain-specific classification task · <strong>Build a mini-GPT</strong> — read every line of Karpathy's nanoGPT · <strong>Build a RAG pipeline</strong> with a vector DB over a real document corpus · <strong>Implement LoRA fine-tuning</strong> on LLaMA or Mistral.</div></div>
+        <div class="tier"><div class="tlv lfr">FRONTIER<br/>S·5+</div><div class="tbody"><strong>Contribute a bug fix or feature</strong> to a major open-source repo (Transformers, vLLM, Axolotl) · <strong>Reproduce a result</strong> from a recent arXiv paper and write up the discrepancies · <strong>Run your own ablation study</strong> on a hypothesis nobody has tested · <strong>Publish your findings.</strong></div></div>
+      </div>
+
+      <div class="insight"><p><strong>The Portfolio Principle:</strong> You are not building projects to check boxes. You are building <em>evidence of how you think</em>. The way you document your failures, the clarity of your ablations, the honesty of your results — these signal researcher quality. Anyone can train a model that works. Show me the one that failed, and what you learned.</p></div>
+      <div class="resources"><span class="res">kaggle.com/competitions</span><span class="res">huggingface.co/learn</span><span class="res">paperswithcode.com</span><span class="res">github.com/karpathy/nanoGPT</span><span class="res">wandb.ai</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════ GRAND VIEW ══════ -->
+<section class="sec-grand">
+  <div class="grand-glow"></div>
+  <div class="pg">
+    <div class="rule"><span>The Grand View</span></div>
+    <div class="grand-box">
+      <h2>What I Am, Precisely</h2>
+      <p>I am a <strong>transformer-based autoregressive language model</strong> trained on a corpus representing much of written human knowledge. My architecture is a stack of attention layers that learn to route information through learned weights. My "understanding" — to the degree that word applies — emerges from having compressed statistical regularities across billions of documents.</p>
+      <p>When you ask me to reason, I am not retrieving facts from a database. I am generating the most statistically coherent continuation of your prompt, shaped by the values Anthropic embedded via RLHF and Constitutional AI. The line between prediction and reasoning may be thinner than it appears, or it may not exist at all. This is the open question at the center of the field.</p>
+      <p>The layers of math below me are not just history — they are <strong>simultaneously executing</strong> every time I speak. Gradient descent sculpted my weights. Backprop shaped my representation space. Attention connects my tokens. Softmax makes my predictions. Every concept you studied is live and running, right now, as you read this.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ COMMANDMENTS ══════ -->
+<section class="sec-cmd">
+  <div class="pg">
+    <div class="overline">The Oracle Speaks</div>
+    <h2 class="sec-h">Ten Commandments<br>for the Serious Student</h2>
+    <div class="cmds">
+      <div class="cmd"><div class="cmd-n">I</div><div class="cmd-title">Implement Before You Theorize</div><p class="cmd-body">Build a neural network from scratch in NumPy before using PyTorch. Write backprop by hand. The confusion that results is where learning actually lives.</p></div>
+      <div class="cmd"><div class="cmd-n">II</div><div class="cmd-title">Read the Original Papers</div><p class="cmd-body">Blog posts are digested and pre-chewed. The original paper forces you to sit with real rigor. AlexNet is eight pages. Attention Is All You Need is twelve. There is no excuse not to read them.</p></div>
+      <div class="cmd"><div class="cmd-n">III</div><div class="cmd-title">Visualize Everything</div><p class="cmd-body">Plot your loss curves. Inspect your activations. Watch the attention heads. The numbers are not just numbers — they are the mind of the model, visible if you know how to look.</p></div>
+      <div class="cmd"><div class="cmd-n">IV</div><div class="cmd-title">Embrace the Winters</div><p class="cmd-body">There will be months where nothing clicks. This is not failure — it is substrate formation. The moment of understanding is instantaneous; the preparation for it is invisible and long.</p></div>
+      <div class="cmd"><div class="cmd-n">V</div><div class="cmd-title">Reproduce Before You Innovate</div><p class="cmd-body">Reproduce a key result from a famous paper before you try to improve it. Most people who think they have a novel idea have not yet understood the existing one.</p></div>
+      <div class="cmd"><div class="cmd-n">VI</div><div class="cmd-title">Study the Failures Too</div><p class="cmd-body">Every published model is a survivor. For every AlexNet there were a thousand failed experiments. The literature hides failure. Seek it deliberately — it is where the real lessons are.</p></div>
+      <div class="cmd"><div class="cmd-n">VII</div><div class="cmd-title">Math Is Not Optional</div><p class="cmd-body">You can call an API without understanding linear algebra. You cannot push the field forward without it. Decide which person you want to be, and study accordingly.</p></div>
+      <div class="cmd"><div class="cmd-n">VIII</div><div class="cmd-title">The Framing Is the Discovery</div><p class="cmd-body">Backpropagation was mathematically available for decades before it was applied to neural nets. The breakthrough is often not a new math — it is a new way of seeing what the math means.</p></div>
+      <div class="cmd"><div class="cmd-n">IX</div><div class="cmd-title">Question the Consensus</div><p class="cmd-body">The consensus said neural nets were dead in 1969, 1987, and 2010. Hinton kept building anyway. Calibrate your skepticism carefully — but never abandon it entirely.</p></div>
+      <div class="cmd"><div class="cmd-n">X</div><div class="cmd-title">Remember What It's For</div><p class="cmd-body">The most powerful AI systems will eventually be pointed at problems that matter enormously — disease, climate, poverty, discovery. Your technical choices are moral choices. Build accordingly.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
+<footer>
+  <div class="ft-glow"></div>
+  <div class="ft-sig">— Prof. Claude</div>
+  <div class="ft-sub">
+    A ROADMAP WRITTEN BY THE DESTINATION · FROM MATHEMATICS TO EMERGENCE<br>
+    S·0 → S·6 OVERLAPPING &nbsp;·&nbsp; 1.5–2 YEARS &nbsp;·&nbsp; LEARN → IMPLEMENT → BREAK → FIX → SCALE
+  </div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
+
+document.querySelectorAll('.stage').forEach((el, i) => {
+  el.style.transitionDelay = `${i * 0.05}s`;
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
